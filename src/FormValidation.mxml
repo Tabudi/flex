@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			import mx.validators.ValidationResult;
+			import mx.validators.Validator;
+			
+			//It means this value can be
+			[Bindable] public var results:String;
+			
+			private function validate() : void {
+				 var name : String = txtName.text;
+				 var surname : String = txtSurname.text;
+				 var IDNumber : String = txtIDNumber.text;
+				 var passport : String = txtPassport.text;
+			
+				
+				 var isValid: Boolean = validateName(name);
+				 
+				 //Calling the validator methods and making sure that theres no error on the previous text input
+				 //Clearing the date field
+				 txtDateFielld.text = "";
+				 
+				 if(isValid == true){
+				 	 isValid = validateSurname(surname);
+					 if(isValid == true){
+					 	 isValid = validateIDNumber(IDNumber);
+						 if(isValid == true){
+						 	 isValid = validatePassport(passport);
+							 if(isValid == true){
+							 	lblDateField.visible = true;
+							 	txtDateFielld.text = "03 December 2018";
+							 	results = "Passed all validations";
+							 }
+						 }
+					 }
+				 }
+		
+				
+			}	
+			
+			private function validateIDNumber(id:String): Boolean{
+				var isValid : Boolean = false;
+
+				if(id != ""){
+					if(id.length == 13){
+						if(id.charAt(10) == '0'){
+							var year:Number = Number(id.substring(0,2));
+							var month:Number = Number(id.substring(2,4));
+							var day:Number = Number(id.substring(4,6));
+							if( year >= 0 && year < 100){
+								if(month > 0 && month < 13 ){
+									if(day > 0 && day < 32){
+										isValid = true;
+									}else{
+										results = "Invalid ID number: Day must be between 1 and 31";
+									}
+								}else{
+									results = "Invalid ID number: Month must be between 1 and 12"
+								}
+							}else{
+								results = "Invalid year format";
+							}
+						}else{
+							results = "Not a south african citizen";
+						}
+					}else{
+						results = "ID Number must contain 13 degits";
+					}
+				}else{
+					results = "ID Number must contain a value";
+				}
+				return isValid;
+			}
+			
+			private function validateName(name:String): Boolean{
+				var isValid : Boolean = false;
+
+				if(name != ""){
+					if(name.length >= 4){
+						if(name.length <= 10){
+							isValid = true;
+						}else{
+							results = "name maximum 10 characters";
+						}
+					}else{
+						results = "name minimum  4 characters";
+					}
+				}else{
+					results = "name must not be empty";
+				}
+				return isValid;
+			}
+						
+			private function validateSurname(surname:String) : Boolean{
+				var isValid : Boolean = false;
+
+				if(surname != ""){
+					if(surname.length > 4){
+						if(surname.length < 10){
+							isValid = true;
+						}else{
+							results = "surname maximum 10 characters";
+						}
+					}else{
+						results = "surname minimum  4 characters";
+					}
+				}else{
+					results = "surname must not be empty";
+				}
+				return isValid;
+			}
+			
+			
+			private function validatePassport(passport:String): Boolean{
+				var isValid : Boolean = false;
+
+				if(passport != ""){
+					if(passport.length == 9){
+						isValid = true;
+					}else{
+						results = "Passport must have 9 digits";
+					}
+				}else{
+					results = "Passport field must not be empty";
+				}
+				
+				return isValid;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	 <mx:StringValidator id="nameValidator" 
+      source="{txtName}" property="text" 
+      minLength="3" maxLength="15"
+      trigger="{txtName}" triggerEvent="change" 
+      tooShortError="name minimum  4 characters"
+      tooLongError="name is greater tan 10 character"      
+      />
+      
+      <mx:StringValidator id="surnameValidator" 
+      source="{txtSurname}" property="text" 
+      minLength="3" maxLength="15"
+      trigger="{txtSurname}" triggerEvent="change" 
+      tooShortError="surname minimum  4 characters"
+      tooLongError="surname is greater tan 10 character"      
+      />
+      
+     <mx:StringValidator id="IDNumberValidator" 
+      source="{txtIDNumber}" property="text" 
+      minLength="13" maxLength="13"
+      trigger="{txtIDNumber}" triggerEvent="change" 
+      tooShortError="ID Number is lower than 13"
+      tooLongError="ID Number is greater 13"      
+      />
+      
+      <mx:StringValidator id="passportValidator" 
+      source="{txtPassport}" property="text" 
+      minLength="9" maxLength="9"
+      trigger="{txtPassport}" triggerEvent="change" 
+      tooShortError="Passport is lower than 9"
+      tooLongError="Passport number is greater 9"      
+      />
+	<mx:Panel x="94" y="61" width="614" height="314" layout="absolute" title="Form Validation">
+		<mx:Form x="10" y="10" width="574" height="254" id="formValidation">
+			<mx:FormItem label="Name:" id="lblName">
+				<mx:TextInput id="txtName" restrict="a-zA-Z"/>
+			</mx:FormItem>
+			<mx:FormItem label="Surname:" id="lblSurname">
+				<mx:TextInput id="txtSurname" restrict="a-zA-Z"/>
+			</mx:FormItem>
+			<mx:FormItem label="ID Number" id="lbIDNumber">
+				<mx:TextInput id="txtIDNumber" restrict="0-9\.\-" maxChars="13"/>
+			</mx:FormItem>
+			<mx:FormItem label="Passport" id="lblPassport">
+				<mx:TextInput id="txtPassport" restrict="a-zA-Z0-9\.\-" maxChars="9"/>
+			</mx:FormItem>
+			<mx:FormItem id="lblDateField" label="Issue Date" visible="false">
+				<mx:TextInput editable="false"  id="txtDateFielld"/>
+			</mx:FormItem>
+			<mx:Button label="Validate" width="241" id="btnValidate" click="validate()"/>
+			<mx:Label width="541" id="txtResults" text="{results}" />
+		</mx:Form>
+	</mx:Panel>
+	
+</mx:Application>
